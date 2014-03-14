@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "okos1", "okos1\okos1.cppproj", "{F5103C05-864F-4ABF-A99C-9D60986277F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5103C05-864F-4ABF-A99C-9D60986277F9}.Debug|AVR.ActiveCfg = Debug|AVR
+		{F5103C05-864F-4ABF-A99C-9D60986277F9}.Debug|AVR.Build.0 = Debug|AVR
+		{F5103C05-864F-4ABF-A99C-9D60986277F9}.Release|AVR.ActiveCfg = Release|AVR
+		{F5103C05-864F-4ABF-A99C-9D60986277F9}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
