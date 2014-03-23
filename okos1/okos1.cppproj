@@ -118,7 +118,13 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="accounth.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="adc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="button.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="configurations.h">
@@ -127,7 +133,22 @@
     <Compile Include="lcd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Led.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="meter.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="okos1.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="relay.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="time.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ui.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
