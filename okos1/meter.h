@@ -27,8 +27,8 @@ MeterCofficients::MeterCofficients()
 {
 	//Load values from EEPROM
 	voltage_offset = 0;
-	voltege_scale = 10;
-	current_scale =20;
+	voltege_scale = 1;
+	current_scale =1;
 	current_offset = 0;
 }
 
@@ -72,17 +72,20 @@ void MeterCofficients::store_parameters()
 
 class Meter
 {
-	int32_t voltage_rms;
-	int32_t voltage_raw, voltage_raw_avg, voltage_raw_sum;
+	int32_t voltage_scaled;
+	int32_t voltage_raw, voltage_rms, voltage_rms_sum;
 	int32_t voltage_unscaled, voltage_unscaled_sum;
 
-	uint8_t counter_raw, counter_unscaled;
+	uint8_t counter_rms, counter_avg;
 	
-	int32_t current_rms;
-	int32_t current_raw, current_raw_avg, current_raw_sum;
+	int32_t current_scaled;
+	int32_t current_raw, current_rms, current_rms_sum;
 	int32_t current_unscaled, current_unscaled_sum;
 		
-	int32_t power;
+	int32_t power_apparent;
+	int32_t power_active, power_active_sum;
+	uint8_t power_factor;
+	
 	uint32_t energy;
 	uint32_t last_tick;
 	Adc adc;
@@ -93,11 +96,11 @@ class Meter
 	void update();
 	inline int32_t voltage()
 	{
-		return voltage_rms;
+		return voltage_scaled;
 	}
 	inline int32_t current()
 	{
-		return current_rms;
+		return current_scaled;
 	}
 	inline int32_t voltage_val_raw()
 	{
@@ -117,7 +120,15 @@ class Meter
 	}
 	inline int32_t power_val()
 	{
-		return power;
+		return power_active;
+	}
+	inline int32_t power_apparent_val()
+	{
+		return power_apparent;
+	}
+	inline int32_t power_factor_val()
+	{
+		return power_factor;
 	}
 	inline int32_t energy_val()
 	{
@@ -128,69 +139,65 @@ class Meter
 Meter::Meter()
 {
 	adc = Adc();
-	counter_raw = 0;
-	counter_unscaled = 0;
-	voltage_raw_sum = 0;
+	counter_rms = 0;
+	counter_avg = 0;
+	voltage_rms_sum = 0;
 	voltage_unscaled_sum = 0;
-	current_raw_sum = 0;
+	current_rms_sum = 0;
 	current_unscaled_sum = 0;
+	power_active_sum = 0;
 }
 
 void Meter::update()
 {
+	uint32_t this_time, time_diff;
 	
 	current_raw = adc.read(CURRENT_CHANNEL);
 	voltage_raw = adc.read(VOLTAGE_CHANNEL);
+	power_active_sum += voltage_raw*current_raw;
 
-	if(counter_raw < SAMPLES_PER_AVG)
+	voltage_rms_sum += int32_t(pow(voltage_raw, 2));
+	current_rms_sum += int32_t(pow(current_raw, 2));	
+	
+	counter_rms += 1;
+	
+	if(counter_rms >= SAMPLES_PER_RMS)
 	{
-		voltage_raw_sum += voltage_raw;
-		current_raw_sum += current_raw;
+		voltage_rms = int32_t(sqrt(voltage_rms_sum/SAMPLES_PER_RMS));
+		current_rms = int32_t(sqrt(current_rms_sum/SAMPLES_PER_RMS));
+		voltage_rms_sum = 0;
+		current_rms_sum	= 0;
+		counter_rms = 0;
 		
-		counter_raw += 1;
-	}
-	else
-	{
-		voltage_raw_avg = voltage_raw_sum/SAMPLES_PER_AVG;
-		current_raw_avg = current_raw_sum/SAMPLES_PER_AVG;
-		voltage_raw_sum = 0;
-		current_raw_sum	= 0;
-		counter_raw = 0;
+		voltage_unscaled_sum += voltage_rms;
+		current_unscaled_sum += current_rms;
+		counter_avg += 1;
 		
-		if (counter_unscaled < SAMPLES_PER_RMS)
+		if (counter_avg >= SAMPLES_PER_AVG)
 		{
-			voltage_unscaled_sum += int32_t(pow(voltage_raw_avg, 2));
-			current_unscaled_sum += int32_t(pow(current_raw_avg, 2));
-			
-			counter_unscaled += 1;
-		}
-		else
-		{
-			int32_t temp_voltage;
-			int32_t temp_current;
-			uint32_t this_time, time_diff;
-			temp_voltage = voltage_unscaled_sum/SAMPLES_PER_RMS;
-			temp_current = current_unscaled_sum/SAMPLES_PER_RMS;
-			voltage_unscaled = int32_t(sqrt(temp_voltage));
-			current_unscaled = int32_t(sqrt(temp_current));
+			voltage_unscaled = voltage_unscaled_sum/SAMPLES_PER_AVG;
+			current_unscaled = current_unscaled_sum/SAMPLES_PER_AVG;
 			voltage_unscaled_sum = 0;
 			current_unscaled_sum = 0;
-			counter_unscaled = 0;
+			counter_avg = 0;
 			
-			voltage_rms = meter_coff.calculate_values(1, voltage_unscaled);
-			current_rms = meter_coff.calculate_values(0, current_unscaled);
+			voltage_scaled = meter_coff.calculate_values(1, voltage_unscaled);
+			current_scaled = meter_coff.calculate_values(0, current_unscaled);
 			
 			
 			//Temporary
 			//voltage_rms = 2300;
 			//current_rms = 3400;
 			
-			power = (voltage_rms*current_rms)/10000;
+			power_active = power_active_sum/(SAMPLES_PER_AVG+SAMPLES_PER_RMS);
+			power_active_sum = 0;
+			power_apparent = (voltage_scaled*current_scaled)/10000;
+			power_factor = power_apparent/power_active;
+			
 			this_time = system_time.get();
 			time_diff = this_time - last_tick;
 			last_tick = this_time;
-			energy = power*time_diff;
-			
+			energy = power_active*time_diff;
 		}
 	}
 }

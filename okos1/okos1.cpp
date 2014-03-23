@@ -74,8 +74,8 @@ int main(void)
 		if (last_second != this_second)
 		{
 			last_second = this_second;
-			//lcd.print_number(meter.current_val_unscaled());
-			ui.update(&account, &meter);
+			lcd.print_number(meter.power_val());
+			//ui.update(&account, &meter);
 		}
 		lcd.update();
 	}

@@ -41,7 +41,7 @@
 #define BUTTON_PIN 2
 
 //Meter configurations
-#define SAMPLES_PER_RMS 25
+#define SAMPLES_PER_RMS 50
 #define SAMPLES_PER_AVG 25
 
 //Account configurations

@@ -83,7 +83,7 @@ Account::Account()
 
 void Account::read_from_rom()
 {
-	uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
+	/*uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
 	balance = eeprom_read_word(gen_address(EEPROM_START_ADDRESS_ACCOUNT,0));
 	address += 2;
 	validity = eeprom_read_dword(gen_address(EEPROM_START_ADDRESS_ACCOUNT,2));
@@ -101,10 +101,11 @@ void Account::read_from_rom()
 	_last_second = eeprom_read_dword(address);
 	address += 4;
 	state = eeprom_read_byte(address);
-	address += 1;
+	address += 1;*/
 }
 void Account::write_to_rom()
 {
+	/*
 		uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
 		eeprom_write_word(address, balance);
 		address += 2;
@@ -124,6 +125,7 @@ void Account::write_to_rom()
 		address += 4;
 		eeprom_write_byte(address, state);
 		address += 1;
+		*/
 }
 uint8_t Account::recharge(int recharge_amount, uint32_t recharge_validity, uint32_t carry_forward_energy_units)
 {
