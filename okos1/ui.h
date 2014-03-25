@@ -66,7 +66,7 @@ void UI::update(Account *account, Meter *meter)
 		}
 		else
 		{
-			_lcd->print_number(meter->power_val());
+			_lcd->print_number(meter->power_apparent_val());
 			_led->turn_off(LED_PIN1);
 			_led->turn_on(LED_PIN2);
 			internal_state_counter = 0;
@@ -105,7 +105,7 @@ void UI::update(Account *account, Meter *meter)
 				internal_state_counter += 1;
 				break;
 			case 4:
-				_lcd->print_number(meter->power_val());
+				_lcd->print_number(meter->power_apparent_val());
 				_led->turn_off(LED_PIN1);
 				_led->turn_on(LED_PIN2);
 				internal_state_counter += 1;

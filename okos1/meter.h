@@ -1,3 +1,4 @@
+
 /*
  * meter.h
  *
@@ -13,23 +14,27 @@ extern Time system_time;
 class MeterCofficients
 {
 	int32_t voltage_offset;
-	int32_t voltege_scale;
+	int32_t voltage_scale;
 	int32_t current_offset;
 	int32_t current_scale;
 	public:
 	MeterCofficients();
 	void calculate_parameters(uint8_t type, int32_t actual_val1, int32_t measured_val1, int32_t actual_val2, int32_t measured_val2);
 	int32_t calculate_values(int type, int32_t measured_val);
-	void store_parameters();	
+	inline void store_parameters();
+	void read_from_rom();
+	void write_to_rom();	
 };
 
 MeterCofficients::MeterCofficients()
 {
 	//Load values from EEPROM
-	voltage_offset = 0;
-	voltege_scale = 1;
+	/*voltage_offset = 0;
+	voltage_scale = 1;
 	current_scale =1;
 	current_offset = 0;
+	write_to_rom();*/
+	read_from_rom();
 }
 
 void MeterCofficients::calculate_parameters(uint8_t type, int32_t actual_val1, int32_t measured_val1, int32_t actual_val2, int32_t measured_val2)
@@ -39,7 +44,7 @@ void MeterCofficients::calculate_parameters(uint8_t type, int32_t actual_val1, i
 	if (type == 0)
 	{
 		voltage_offset = offset;
-		voltege_scale = int32_t(scale);
+		voltage_scale = int32_t(scale);
 	}
 	else
 	{
@@ -53,7 +58,7 @@ int32_t MeterCofficients::calculate_values(int type, int32_t measured_val)
 	int scale, offset;
 	if (type ==1 )
 	{
-		scale = voltege_scale;
+		scale = voltage_scale;
 		offset = voltage_offset;
 	}
 	else
@@ -64,9 +69,34 @@ int32_t MeterCofficients::calculate_values(int type, int32_t measured_val)
 	return int32_t(scale)*measured_val + offset;
 }
 
-void MeterCofficients::store_parameters()
+inline void MeterCofficients::store_parameters()
 {
 	//Store the parameters into EEPROM
+	write_to_rom();
+}
+
+void MeterCofficients::read_from_rom()
+{
+	uint32_t address = EEPROM_START_ADDRESS_CALIBRATION;
+	voltage_offset = (int32_t)eeprom_read_dword((const uint32_t *)address);
+	address += 4;
+	voltage_scale = (int32_t)eeprom_read_dword((const uint32_t *)address);
+	address += 4;
+	current_offset = (int32_t)eeprom_read_dword((const uint32_t *)address);
+	address += 4;
+	current_scale = (int32_t)eeprom_read_dword((const uint32_t *)address);
+}
+
+void MeterCofficients::write_to_rom()
+{
+	uint32_t address = EEPROM_START_ADDRESS_CALIBRATION;
+	eeprom_write_dword((uint32_t*)address, voltage_offset);
+	address += 4;
+	eeprom_write_dword((uint32_t*)address, voltage_scale);
+	address += 4;
+	eeprom_write_dword((uint32_t*)address, current_offset);
+	address += 4;
+	eeprom_write_dword((uint32_t*)address, current_scale);
 }
 
 
@@ -83,8 +113,8 @@ class Meter
 	int32_t current_unscaled, current_unscaled_sum;
 		
 	int32_t power_apparent;
-	int32_t power_active, power_active_sum;
-	uint8_t power_factor;
+	//int32_t power_active, power_active_sum;
+	//uint8_t power_factor;
 	
 	uint32_t energy;
 	uint32_t last_tick;
@@ -118,18 +148,18 @@ class Meter
 	{
 		return current_unscaled;
 	}
-	inline int32_t power_val()
+	/*inline int32_t power_val()
 	{
 		return power_active;
-	}
+	}*/
 	inline int32_t power_apparent_val()
 	{
 		return power_apparent;
 	}
-	inline int32_t power_factor_val()
+	/*inline int32_t power_factor_val()
 	{
 		return power_factor;
-	}
+	}*/
 	inline int32_t energy_val()
 	{
 		return energy;
@@ -145,17 +175,19 @@ Meter::Meter()
 	voltage_unscaled_sum = 0;
 	current_rms_sum = 0;
 	current_unscaled_sum = 0;
-	power_active_sum = 0;
+	//power_active_sum = 0;
 }
 
 void Meter::update()
 {
 	uint32_t this_time, time_diff;
-	
+	//int32_t pwr_val;
 	current_raw = adc.read(CURRENT_CHANNEL);
 	voltage_raw = adc.read(VOLTAGE_CHANNEL);
-	power_active_sum += voltage_raw*current_raw;
-
+	//pwr_val = current_raw*voltage_raw;
+	//if (pwr_val < 0)
+	//	pwr_val *= -1;
+	//power_active_sum += pwr_val; 
 	voltage_rms_sum += int32_t(pow(voltage_raw, 2));
 	current_rms_sum += int32_t(pow(current_raw, 2));	
 	
@@ -189,15 +221,15 @@ void Meter::update()
 			//voltage_rms = 2300;
 			//current_rms = 3400;
 			
-			power_active = power_active_sum/(SAMPLES_PER_AVG+SAMPLES_PER_RMS);
-			power_active_sum = 0;
+			//power_active = power_active_sum/(SAMPLES_PER_AVG+SAMPLES_PER_RMS);
+			//power_active_sum = 0;
 			power_apparent = (voltage_scaled*current_scaled)/10000;
-			power_factor = power_apparent/power_active;
+			//power_factor = power_apparent/power_active;
 			
 			this_time = system_time.get();
 			time_diff = this_time - last_tick;
 			last_tick = this_time;
-			energy = power_active*time_diff;
+			energy = power_apparent*time_diff;
 		}
 	}
 }

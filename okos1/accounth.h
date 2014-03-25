@@ -25,6 +25,7 @@ enum Account_states
 	NEGATIVE_BALANCE = 4,
 	INVALID_RATE = 8
 };
+
 class Account
 {
 	int balance; //Credits available in the meter.
@@ -38,6 +39,7 @@ class Account
 	//uint32_t last_managed_time; //Time when the account was last maintained.
 	uint32_t _last_second; //Last second.
 	uint8_t state;
+	uint8_t eeprom_updated;
 	public:
 	Account();
 	void read_from_rom();
@@ -72,61 +74,69 @@ class Account
 Account::Account()
 {
 	//Improvement: Read data from EEPROM here.
-	balance = 10;
+	/*balance = 10;
 	validity = 999999;
 	rate = 999999;
 	carry_farword_units = 9999;
 	energy_raminning = balance*rate;
 	energy_used = 0;
 	_last_second = 0;
+	write_to_rom();*/
+	read_from_rom();
+	eeprom_updated = 0;
 }
 
 void Account::read_from_rom()
 {
-	/*uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
-	balance = eeprom_read_word(gen_address(EEPROM_START_ADDRESS_ACCOUNT,0));
+	uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
+	balance = eeprom_read_word((const uint16_t *)address);
 	address += 2;
-	validity = eeprom_read_dword(gen_address(EEPROM_START_ADDRESS_ACCOUNT,2));
+	validity = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	rate = eeprom_read_dword(address);
+	rate = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	carry_farword_units = eeprom_read_dword(address);
+	carry_farword_units = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	energy_raminning = eeprom_read_dword(address);
+	energy_raminning = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	energy_used = eeprom_read_dword(address);
+	energy_used = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	last_recharge_time = eeprom_read_dword(address);
+	last_recharge_time = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	_last_second = eeprom_read_dword(address);
+	_last_second = eeprom_read_dword((const uint32_t*)address);
 	address += 4;
-	state = eeprom_read_byte(address);
-	address += 1;*/
+	state = eeprom_read_byte((const uint8_t*)address);
+	address += 1;
 }
+
 void Account::write_to_rom()
 {
-	/*
+	if (eeprom_updated == 1)
+		return;
+		
 		uint32_t address = EEPROM_START_ADDRESS_ACCOUNT;
-		eeprom_write_word(address, balance);
+		eeprom_write_word((uint16_t*)address, balance);
 		address += 2;
-		eeprom_write_dword(address, validity);
+		eeprom_write_dword((uint32_t*)address, validity);
 		address += 4;
-		eeprom_write_dword(address, rate);
+		eeprom_write_dword((uint32_t*)address, rate);
 		address += 4;
-		eeprom_write_dword(address, carry_farword_units);
+		eeprom_write_dword((uint32_t*)address, carry_farword_units);
 		address += 4;
-		eeprom_write_dword(address, energy_raminning);
+		eeprom_write_dword((uint32_t*)address, energy_raminning);
 		address += 4;
-		eeprom_write_dword(address, energy_used);
+		eeprom_write_dword((uint32_t*)address, energy_used);
 		address += 4;
-		eeprom_write_dword(address, last_recharge_time);
+		eeprom_write_dword((uint32_t*)address, last_recharge_time);
 		address += 4;
-		eeprom_write_dword(address, _last_second);
+		eeprom_write_dword((uint32_t*)address, _last_second);
 		address += 4;
-		eeprom_write_byte(address, state);
+		eeprom_write_byte((uint8_t*)address, state);
 		address += 1;
-		*/
+		
+		eeprom_updated = 1;
 }
+
 uint8_t Account::recharge(int recharge_amount, uint32_t recharge_validity, uint32_t carry_forward_energy_units)
 {
 	if (validity <= 0 && energy_raminning > 0)//if the validity of the previous recharge is finished
@@ -170,7 +180,10 @@ void Account::update(Meter *meter)
 	if (rate <= 0)
 	state |= INVALID_RATE;
 	
-	
+	if (meter->voltage() < 1500)
+	{
+		write_to_rom();
+	}
 	//if (temp_state == 0)
 	//	state = 0;
 	//else
