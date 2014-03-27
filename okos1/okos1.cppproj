@@ -127,7 +127,13 @@
     <Compile Include="button.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="communication.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="configurations.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lcd.h">
@@ -146,6 +152,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="time.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="uart.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ui.h">

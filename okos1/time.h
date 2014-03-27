@@ -42,12 +42,14 @@ class Time
 		else
 			ticks += 1;
 	}
-	
 	inline uint32_t get()
 	{
 		return seconds;
 	}
-	
+	inline void set(uint32_t new_seconds)
+	{
+		seconds = new_seconds;
+	}
 };
 
 

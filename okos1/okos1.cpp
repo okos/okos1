@@ -5,13 +5,13 @@
  *  Author: vicky
  */ 
 
-# define F_CPU 8000000UL
-
+#include "configurations.h"
 #include <avr/io.h>
+#include <stdlib.h>
+#include "uart.h"
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
-#include "configurations.h"
 #include "lcd.h"
 #include "Led.h"
 #include "relay.h"
@@ -21,6 +21,10 @@
 #include "accounth.h"
 #include "button.h"
 #include "ui.h"
+#include "communication.h"
+#include <stdio.h>
+#include <string.h>
+#include "interface.h"
 
 Lcd lcd = Lcd();
 Led led = Led();
@@ -31,7 +35,11 @@ Time system_time = Time();
 Button toggle_button = Button();
 UI ui = UI(&lcd, &led, &toggle_button);
 
+Communication Comm = Communication();
+Interface interface = Interface(&account, &meter, &Comm, &system_time);
+
 // timer0 overflow interrupt
+
 ISR(TIMER0_OVF_vect) {
 	system_time.add_tick();
 }
@@ -43,6 +51,7 @@ ISR(INT0_vect)
 
 int main(void)
 {
+	
 	//Enabling timer 0 interrupt for system clock
 	TIMSK=(1<<TOIE0);
 	// set timer0 counter initial value to 0
@@ -60,11 +69,16 @@ int main(void)
 	int32_t last_second, this_second;
 	int8_t counter = 0;
 	relay.turn_on();
+	
+	USART_init();
+	
+	//send_string("Started\n");
 	while(1)
 	{
-		
+		interface.update();
+		Comm.update();	
 		meter.update();
-		//toggle_button.read();
+		toggle_button.read();
 		account.update(&meter);
 		this_second = system_time.get();
 		if (account.get_state())

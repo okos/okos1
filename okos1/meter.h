@@ -41,7 +41,7 @@ void MeterCofficients::calculate_parameters(uint8_t type, int32_t actual_val1, i
 {
 	float scale = float(actual_val2 - actual_val2)/(measured_val2 - measured_val1);
 	int32_t offset = actual_val2 - scale*measured_val2;
-	if (type == 0)
+	if (type == 1)
 	{
 		voltage_offset = offset;
 		voltage_scale = int32_t(scale);
@@ -119,9 +119,10 @@ class Meter
 	uint32_t energy;
 	uint32_t last_tick;
 	Adc adc;
-	MeterCofficients meter_coff;
 	
 	public:
+	MeterCofficients meter_coff;
+	
 	Meter();
 	void update();
 	inline int32_t voltage()

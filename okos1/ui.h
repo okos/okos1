@@ -14,7 +14,8 @@ enum UI_states
 	NORMAL = 0,
 	ERROR = 1,
 	TAMPERED = 2,
-	INFO = 3
+	INFO = 3,
+	RECHARGING = 4,
 };
 
 class UI
