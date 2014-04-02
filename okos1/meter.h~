@@ -178,10 +178,10 @@ class Meter
 	{
 		return power_factor;
 	}*/
-	/*inline int32_t energy_val()
+	inline int32_t energy_val()
 	{
 		return energy;
-	}*/
+	}
 };
 
 Meter::Meter()

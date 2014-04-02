@@ -1,0 +1,1 @@
+avrdude -p atmega32 -c usbasp -V -U eeprom:r:Debug/eeprom.hex:i
