@@ -33,7 +33,7 @@
 #define RELAY_PIN 3
 
 //Timer configuration
-#define TICKS_PER_SECOND 30
+#define TICKS_PER_SECOND 60 //30 for 8mhz crystal
 
 //Button configurations
 #define BUTTON_PORT_DIRECTION DDRD
@@ -51,6 +51,6 @@
 #define EEPROM_START_ADDRESS_TIMER EEPROM_START_ADDRESS_CALIBRATION + 100
 
 //USART configurations
-#define F_CPU 8000000UL
+#define F_CPU 16000000UL
 #define USART_BAUDRATE 9600
 #endif /* CONFIGURATIONS_H_ */

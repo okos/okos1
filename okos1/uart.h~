@@ -68,7 +68,7 @@ uint8_t USART_receive_byte()
 
 uint8_t USART_any_byte(uint8_t *data)
 {
-	if ((UCSRA &(1<<RXC)) == 0)//If its receiving bits
+	if ((UCSRA &(1<<RXC)) == 0)
 		return 0;
 	*data = UDR;
 	return 1;
