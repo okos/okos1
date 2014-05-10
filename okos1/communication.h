@@ -257,7 +257,9 @@ uint8_t Communication::receive_packet()
 	uint8_t data_byte;
 	if (!receiving_pkt.packet_complete)
 	{
-		if (USART_any_byte(&data_byte))
+		/*if (USART_any_byte(&data_byte))
+			receiving_pkt.add_byte(data_byte);*/
+		if(USART_any_data(&data_byte))
 			receiving_pkt.add_byte(data_byte);
 	}
 }

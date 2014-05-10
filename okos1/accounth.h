@@ -51,6 +51,7 @@ class Account
 	uint32_t energy_used;// Total energy used by by the consumer till now
 	uint32_t last_recharge_time;
 	uint32_t _last_second; //Last second.
+	uint32_t _last_eeprom_update_second;
 	uint32_t _overload_time;//Time when the meter was overloaded
 	uint8_t eeprom_updated;
 	public:
@@ -165,6 +166,7 @@ Account::Account()
 	power_limit = 100;
 	write_to_rom();*/
 	read_from_rom();
+	_last_eeprom_update_second = _last_second;
 	eeprom_updated = 0;
 	_overload_time = 0;
 }
@@ -315,13 +317,21 @@ void Account::update(Meter *meter)
 		_overload_time = system_time.get();
 	}
 
+	//Update EEPROM every hour
+	if (_last_eeprom_update_second + 3600 < this_second)
+	{
+		eeprom_updated = 0;
+		write_to_rom();
+	}
+
+
+    //If the voltage is going low. Store the data in EEPROM.
 	if (meter->voltage() < 1500)
 	{
 		if (!eeprom_updated)
 		{
 			system_time.write_to_rom();
 			write_to_rom();
-			eeprom_updated = 1;
 		}
 		state |= LOW_VOLTAGE;
 	}

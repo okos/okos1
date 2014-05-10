@@ -39,7 +39,6 @@ Communication Comm = Communication();
 Interface interface = Interface(&account, &meter, &Comm, &system_time);
 
 // timer0 overflow interrupt
-
 ISR(TIMER0_OVF_vect) {
 	system_time.add_tick();
 }
@@ -48,6 +47,11 @@ ISR(INT0_vect)
 {
 	toggle_button.press();
 }
+
+/*ISR(USART_RXC_vect)
+{
+	Comm.receive_packet();
+}*/
 
 int main(void)
 {

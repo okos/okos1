@@ -22,6 +22,7 @@
 #define DEVICE_DETAILS_PACKET 4
 #define CALIBRATION_PACKET 5
 #define METER_DETAILS_PACKET 6
+#define CALIBRATION_DETAILS_PACKET 7
 
 class Packet
 {
@@ -258,6 +259,8 @@ uint8_t Communication::receive_packet()
 	{
 		if (USART_any_byte(&data_byte))
 			receiving_pkt.add_byte(data_byte);
+		/*if(USART_any_data(&data_byte))
+			receiving_pkt.add_byte(data_byte);*/
 	}
 }
 

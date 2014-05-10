@@ -52,5 +52,5 @@
 
 //USART configurations
 #define F_CPU 8000000UL
-#define USART_BAUDRATE 9600
+#define USART_BAUDRATE 38400/*9600*/
 #endif /* CONFIGURATIONS_H_ */
