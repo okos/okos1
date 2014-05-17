@@ -75,7 +75,7 @@ void Lcd::update()
 			PORTD &= !(1<<(4+turn));
 		#else
 				LCD_CONTROL_PORT  |= !0xf0;
-				PORTD &= !(1<<(turn));
+				PORTD &= (1<<(turn));
 		#endif
 	#endif
 	LCD_DATA_PORT = value[turn];
