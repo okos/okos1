@@ -183,6 +183,7 @@ class Communication
 	
 	Communication();
 	uint8_t send_packet();
+	uint8_t send_whole_packet();
 	uint8_t receive_packet();
 	uint8_t send(Packet *pkt);
 	uint8_t receive(Packet *pkt);
@@ -203,6 +204,7 @@ Communication::Communication()
 void Communication::update()
 {
 	send_packet();
+	//send_whole_packet();
 	receive_packet();
 }
 
@@ -251,6 +253,24 @@ uint8_t Communication::send_packet()
 	}
 	return 1;
 }
+
+/*uint8_t Communication::send_whole_packet()
+{
+	if (sent_bytes < sending_pkt.length)
+	{
+		is_sending = 1;
+		USART_send_data(sending_pkt.data, sending_pkt.length);
+		sent_bytes = sending_pkt.length;
+	}
+	else
+	{
+		is_sending = 0;
+		sent_bytes = MAX_PACKET_LENGTH+1;
+		sending_pkt.length = 0;
+		//send_string("SC\n");	
+	}
+	return 1;
+}*/
 
 uint8_t Communication::receive_packet()
 {

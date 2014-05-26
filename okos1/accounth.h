@@ -278,14 +278,19 @@ void Account::update(Meter *meter)
 	uint32_t this_second = system_time.get();
 	if (this_second!=_last_second)
 	{
+		_last_second = this_second;
+		#ifdef ACCOUNT_TYPE_PREPAID
 		if (validity>0)
 			validity -= 1;
-		_last_second = this_second;
-		
 		energy_remaining -= energy;
 		energy_used += energy;
 		balance = energy_remaining/rate;
+		#else
+		energy_used += energy;
+		balance = energy_used/rate;
+		#endif
 	}
+	#ifdef ACCOUNT_TYPE_PREPAID
 	if (balance == 0)
 		state |= ZERO_BALANCE;
 	else
@@ -302,7 +307,7 @@ void Account::update(Meter *meter)
 		state |= INVALID_RATE;
 	else
 		state &= ~INVALID_RATE;
-
+	#endif
 	if (state&OVERLOAD)
 	{
 		if (system_time.get()-_overload_time > OVERLOAD_RESET_TIME)
