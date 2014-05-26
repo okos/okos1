@@ -146,7 +146,7 @@ if __name__ == '__main__':
     else:
         p.make_packet('0.0.0.0', destination, NORMAL, message);
     data =  p.serialize_packet();
-    dev = serial.Serial('/dev/ttyUSB0', timeout = 0.4, baudrate = 9600, bytesize = 8, stopbits = 1, parity='N');
+    dev = serial.Serial('/dev/ttyUSB0', timeout = 0.4, baudrate = 57600, bytesize = 8, stopbits = 1, parity='N');
     for i in data:
         dev.write(i);
     #print len(data);

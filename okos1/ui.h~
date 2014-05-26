@@ -9,6 +9,7 @@
 #ifndef UI_H_
 #define UI_H_
 
+#define MAX_STATE_ACTIVE_COUNT 20
 enum UI_states
 {
 	NORMAL = 0,
@@ -17,6 +18,7 @@ enum UI_states
 	INFO = 3,
 	RECHARGING = 4,
 	CALMODE = 8,
+	IDLE = 16,
 };
 
 class UI
@@ -26,6 +28,7 @@ class UI
 	Led *_led;
 	Button *_button;
 	uint8_t internal_state_counter;
+	uint8_t state_active_time_counter;
 	public:
 	UI(Lcd *lcd, Led *led, Button *);
 	void update(Account*, Meter*);
@@ -37,19 +40,26 @@ UI::UI(Lcd *lcd, Led *led, Button *button)
 	_led = led;
 	_button = button;
 	internal_state_counter = 0;
+	state_active_time_counter = 0;
 }
 
 void UI::update(Account *account, Meter *meter)
 {
 	uint8_t acc_state = account->get_state();
 	uint16_t days;
-	
+	state_active_time_counter += 1;
+
 	if (_button->get_and_clear())
 	{
-		state = INFO;
+		if(state == IDLE)
+			state = NORMAL;
+		else
+			state = INFO;
 		internal_state_counter = 0;
+		state_active_time_counter = 0;
 	}
-	if (state!=INFO)
+
+	if (state != INFO)
 	{
 		if (acc_state == 0)
 			state = NORMAL;
@@ -58,12 +68,29 @@ void UI::update(Account *account, Meter *meter)
 		else
 			state = ERROR;
 	}
-		
-	if (state == NORMAL)
+
+	if (state_active_time_counter >= MAX_STATE_ACTIVE_COUNT)
+	{
+		state_active_time_counter = MAX_STATE_ACTIVE_COUNT;
+		state = IDLE;
+	}
+	
+
+	if (state == IDLE)
+	{
+		_lcd->print(3, ' ');
+		_lcd->print(2, ' ');
+		_lcd->print(1, ' ');
+		_lcd->print(0, ' ');
+		_led->turn_on(LED_PIN1);
+		_led->turn_on(LED_PIN2);
+	}	
+	else if (state == NORMAL)
 	{
 		if (internal_state_counter == 0)
 		{
-			_lcd->print_number(account->get_balance());
+			//_lcd->print_number(account->get_balance());
+			_lcd->print_number(state_active_time_counter);
 			_led->turn_on(LED_PIN1);
 			_led->turn_off(LED_PIN2);
 			internal_state_counter = 1;

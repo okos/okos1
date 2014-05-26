@@ -55,25 +55,31 @@ Lcd::Lcd()
 }
 void Lcd::update()
 {
-	//for (uint8_t turn=0;turn<4;turn++)
-	//if(turn<=4)
-	//{
 	if(turn == 4)
 	turn = 0;
 	else
 	turn += 1;
-	
-	LCD_DATA_PORT =  ~(0b00000000); //clear the digit, tilde is temporary
-	#ifdef LCD_CONTROL_PORT_HIGH_
-	LCD_CONTROL_PORT &= 0x0f;
-	PORTD |= 1<<(4+turn);
+	#ifdef DEV_BOARD
+		LCD_DATA_PORT =  0b00000000; //clear the digit
 	#else
-	LCD_CONTROL_PORT  &= 0xf0;
-	PORTD |= 1<<(turn);
+		LCD_DATA_PORT =  ~0b00000000; //clear the digit
 	#endif
-	LCD_DATA_PORT = ~value[turn];//tilde is temporary
-	//_delay_ms(5);
-	//}
+
+	#ifdef LCD_CONTROL_PORT_HIGH_
+		LCD_CONTROL_PORT &= 0x0f;
+		PORTD |= 1<<(4+turn);
+	#else
+		LCD_CONTROL_PORT  &= 0xf0;
+		PORTD |= 1<<(turn);
+	#endif
+
+
+	#ifdef DEV_BOARD
+		LCD_DATA_PORT = value[turn];
+	#else
+		LCD_DATA_PORT = ~value[turn];
+	#endif
+
 }
 void Lcd::print(int8_t segment_number, int8_t val, uint8_t is_decimal=0)
 {

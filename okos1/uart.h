@@ -23,14 +23,16 @@ Very Important - change F_CPU to match target clock
 //#define USART_BAUDRATE 57600
 #define BAUD_PRESCALE (((F_CPU / (USART_BAUDRATE * 16UL))) - 1)
 
-/*static char received_data[40];
+#define RECEIVE_BUFFER_SIZE 200
+static char received_data[RECEIVE_BUFFER_SIZE];
 uint8_t data_char;
-static uint8_t received_data_counter;
-*/
-/*ISR(USART_RXC_vect)
+static uint8_t received_data_counter, read_data_counter;
+void check_data();
+
+ISR(USART_RXC_vect)
 {
 	check_data();
-}*/
+}
 
 void USART_init(void)
 {
@@ -44,10 +46,11 @@ void USART_init(void)
 	*/ 
 
 	//Enable receiver and transmitter and receive complete interrupt 
-	//UCSRB = ((1<<TXEN)|(1<<RXEN) | (1<<RXCIE));
-	UCSRB = ((1<<TXEN)|(1<<RXEN));
+	UCSRB = ((1<<TXEN)|(1<<RXEN) | (1<<RXCIE));
+	//UCSRB = ((1<<TXEN)|(1<<RXEN));
 	
-	//received_data_counter = 0;
+	received_data_counter = 0;
+	read_data_counter = 0;
 }
 
 
@@ -59,6 +62,15 @@ void USART_send_byte(uint8_t u8Data)
 	UDR = u8Data;
 }
 
+/*void USART_send_data(char* data, uint8_t size)
+{
+	uint8_t i;
+	for(i=0; i<size; i++)
+		// Wait until last byte has been transmitted
+		while((UCSRA &(1<<UDRE)) == 0);
+		// Transmit data
+		UDR = data[i];
+}*/
 
 uint8_t USART_receive_byte()
 {
@@ -74,25 +86,34 @@ uint8_t USART_any_byte(uint8_t *data)
 	return 1;
 }
 
-/*inline void check_data()
+inline void check_data()
 {
 	if (USART_any_byte(&data_char))
 	{
-		received_data[received_data_counter] = data_char;
-		received_data_counter += 1;
+		if(received_data_counter < RECEIVE_BUFFER_SIZE)
+		{
+			received_data[received_data_counter] = data_char;
+			received_data_counter += 1;
+		}
+		else
+		{
+			received_data[0] = data_char;
+			received_data_counter = 1;
+		}
 	}
 }
 
-uint8_t USART_any_data(char *data)
+uint8_t USART_any_data(uint8_t *data)
 {
-	if (received_data_counter == 0)
+	if (received_data_counter == read_data_counter)
 		return 0;
-	received_data[received_data_counter] = '\0';
-	received_data_counter = 0;
-	data = received_data;
+	if(read_data_counter == RECEIVE_BUFFER_SIZE)
+		read_data_counter = 0;
+	*data = (uint8_t)received_data[read_data_counter];
+	read_data_counter += 1;
 	return 1;
 }
-*/
+
 void send_string(char* string)
 {
 	while (*string != '\0')

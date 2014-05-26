@@ -9,6 +9,9 @@
 #ifndef CONFIGURATIONS_H_
 #define CONFIGURATIONS_H_
 
+/*Important* Comment it for actual board*/
+//#define DEV_BOARD
+#define ACCOUNT_TYPE_PREPAID
 //LCD port configurations
 #define LCD_DATA_DIRECTION DDRB
 #define LCD_DATA_PORT PORTB
@@ -33,7 +36,11 @@
 #define RELAY_PIN 3
 
 //Timer configuration
+<<<<<<< HEAD
 #define TICKS_PER_SECOND 60 //30 for 8mhz crystal
+=======
+#define TICKS_PER_SECOND 60//30
+>>>>>>> dev
 
 //Button configurations
 #define BUTTON_PORT_DIRECTION DDRD
@@ -51,6 +58,11 @@
 #define EEPROM_START_ADDRESS_TIMER EEPROM_START_ADDRESS_CALIBRATION + 100
 
 //USART configurations
+<<<<<<< HEAD
 #define F_CPU 16000000UL
 #define USART_BAUDRATE 9600
+=======
+#define F_CPU 16000000UL/*8000000UL*/
+#define USART_BAUDRATE 38400/*9600*/
+>>>>>>> dev
 #endif /* CONFIGURATIONS_H_ */
