@@ -19,11 +19,11 @@ class Adc
 
 Adc::Adc()	// Initialization of ADC
 {	
-	//#ifdef ADC_REF_2.5V
+	#ifdef ADC_REF_2.5V
 	_ADMUX = (1<<REFS0)|(1<<REFS1);// AVcc with internal 2.56 volt refrence
-	//#else
-	//_ADMUX = (1<<REFS0);
-	//#endif
+	#else
+	_ADMUX = (1<<REFS0);
+	#endif
 	ADMUX = _ADMUX;
 	ADCSRA=(1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(0<<ADPS0);
 	// Enable ADC and set Prescaler division factor as 64

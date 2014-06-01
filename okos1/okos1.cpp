@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "interface.h"
+#include <avr/wdt.h>
 
 Lcd lcd = Lcd();
 Led led = Led();
@@ -55,7 +56,7 @@ ISR(INT0_vect)
 
 int main(void)
 {
-	
+
 	//Enabling timer 0 interrupt for system clock
 	TIMSK=(1<<TOIE0);
 	// set timer0 counter initial value to 0
@@ -68,6 +69,10 @@ int main(void)
 	MCUCR=0x03;
 	MCUCSR=0x00;
 	GIFR=0x40;
+
+	//Enable watchdog
+	wdt_enable(WDTO_2S);
+
 	//Enable interrupts
 	sei();
 	int32_t last_second, this_second;
@@ -79,6 +84,9 @@ int main(void)
 	//send_string("Started\n");
 	while(1)
 	{
+		//Reset watchdog first
+		wdt_reset();
+
 		interface.update();
 		Comm.update();	
 		meter.update();
